@@ -9,13 +9,14 @@ import Plane from "../objects/plane";
 export default function App() {
 
   return (
-    <Canvas className="main" shadowMap camera={{position:[3,3,4]}}>
-      <fog attach="fog" args={['white', 10, 20]}/>
+    <Canvas className="main" shadowMap camera={ { position: [10, 10, 10] } }>
+      <fog attach="fog" args={ ['white', 40, 80] }/>
       <Controls/>
       <Lights/>
       <Plane/>
       <Star/>
-      <axesHelper args={5}/>
+      {/*<pointLight args={['white', 1, 1000]} position={[0,0,0]}/>*/}
+      {/*<axesHelper args={ 5 }/>*/}
     </Canvas>
   )
 }

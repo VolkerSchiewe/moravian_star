@@ -9,7 +9,16 @@ const Controls = () => {
   const { camera, gl } = useThree()
   const orbitRef = useRef()
   useRender(() => orbitRef.current.update())
-  return <orbitControls autorotate={true} ref={ orbitRef } args={ [camera, gl.domElement] } enableDamping={true}/>
+  return (
+    <orbitControls
+      args={ [camera, gl.domElement] }
+      ref={ orbitRef }
+      autorotate={ true }
+      enableDamping={ true }
+      maxPolarAngle={ Math.PI / 2 }
+    />
+  )
+
 }
 
 export default Controls

@@ -1,7 +1,13 @@
-import React from 'react'
-import { Face3, Geometry, Vector3 } from 'three';
+import React, { useEffect, useRef } from 'react'
+import { Face3, Vector3 } from 'three';
 
-function Star25({ position }) {
+interface StarProps {
+  position: number[],
+  color?: string
+}
+
+function Star25({ position, color }: StarProps) {
+  const ref = useRef();
   const length = 1;
   const vertices = [
     new Vector3(length / 2, length / 2 + Math.sqrt(length / 2), length / 2), // 0
@@ -101,22 +107,32 @@ function Star25({ position }) {
     new Face3(21, 10, 11),
     new Face3(13, 22, 12),
   ];
-  const geometry = new Geometry();
-  geometry.vertices = vertices;
-  geometry.faces = faces;
-  geometry.computeFaceNormals();
+  useEffect(() => {
+    const geometry = ref.current;
+    geometry.computeFaceNormals();
+    geometry.faces.forEach((f, idx) => {
+      const jagVertex = f.normal.clone();
+      jagVertex.multiplyScalar(4);
+      geometry.vertices.push(jagVertex);
+      geometry.faces.push(new Face3(f.a, f.b, 24 + idx));
+      geometry.faces.push(new Face3(f.b, f.c, 24 + idx));
+      geometry.faces.push(new Face3(f.c, f.a, 24 + idx))
+    });
+    geometry.computeFaceNormals()
+  });
+
+
   return (
-    <mesh geometry={ geometry } castShadow position={ position }>
-      {/*<geometry attach='geometry' vertices={ vertices } faces={ faces }/>*/ }
-      <meshPhysicalMaterial attach='material'/>
+    <mesh castShadow position={ position }>
+      <geometry attach='geometry' vertices={ vertices } faces={ faces } ref={ ref }/>
+      <meshPhysicalMaterial attach='material' color={ color }/>
     </mesh>
   )
 }
 
 function Star() {
-
   return (
-    <Star25 position={ [0, 0, 0] }/>
+    <Star25 position={ [0, 4, 0] } color={ "#ffc500" }/>
   )
 
 }
