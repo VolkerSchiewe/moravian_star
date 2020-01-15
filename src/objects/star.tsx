@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react'
 import { Face3, Vector3 } from 'three';
+import { useRender } from "react-three-fiber";
 
 interface StarProps {
   position: number[],
@@ -7,7 +8,8 @@ interface StarProps {
 }
 
 function Star25({ position, color }: StarProps) {
-  const ref = useRef();
+  const geometryRef = useRef();
+  const meshRef = useRef();
   const length = 1;
   const vertices = [
     new Vector3(length / 2, length / 2 + Math.sqrt(length / 2), length / 2), // 0
@@ -107,12 +109,17 @@ function Star25({ position, color }: StarProps) {
     new Face3(21, 10, 11),
     new Face3(13, 22, 12),
   ];
+
   useEffect(() => {
-    const geometry = ref.current;
+    const geometry = geometryRef.current;
     geometry.computeFaceNormals();
     geometry.faces.forEach((f, idx) => {
       const jagVertex = f.normal.clone();
-      jagVertex.multiplyScalar(4);
+
+      if (!jagVertex.toArray().some(v => (v > 0 && v < 0.7) || (v < 0 && v > -0.7)))
+        jagVertex.multiplyScalar(4 + 0.5 + Math.sqrt(0.5));
+      else
+        jagVertex.multiplyScalar(2.75 + 0.5 + Math.sqrt(0.5));
       geometry.vertices.push(jagVertex);
       geometry.faces.push(new Face3(f.a, f.b, 24 + idx));
       geometry.faces.push(new Face3(f.b, f.c, 24 + idx));
@@ -121,10 +128,12 @@ function Star25({ position, color }: StarProps) {
     geometry.computeFaceNormals()
   });
 
+  if (process.env.NODE_ENV === 'production')
+    useRender(() => meshRef?.current?.rotation.y += 0.001);
 
   return (
-    <mesh castShadow position={ position }>
-      <geometry attach='geometry' vertices={ vertices } faces={ faces } ref={ ref }/>
+    <mesh castShadow position={ position } ref={ meshRef }>
+      <geometry attach='geometry' vertices={ vertices } faces={ faces } ref={ geometryRef }/>
       <meshPhysicalMaterial attach='material' color={ color }/>
     </mesh>
   )
@@ -132,7 +141,7 @@ function Star25({ position, color }: StarProps) {
 
 function Star() {
   return (
-    <Star25 position={ [0, 4, 0] } color={ "#ffc500" }/>
+    <Star25 position={ [0, 4, 0] } color={ "#ffb114" }/>
   )
 
 }
